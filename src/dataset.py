@@ -51,7 +51,7 @@ class TweetDataset:
         targets_start = [0] * targets.__len__()
         targets_end = [0] * targets.__len__()
 
-        non_zero_vars = np.non_zero(targets)[0]
+        non_zero_vars = np.nonzero(targets)[0]
         if non_zero_vars.__len__() > 0:
             targets_start[non_zero_vars[0]] = 1
             targets_end[non_zero_vars[-1]] = 1
@@ -82,7 +82,7 @@ class TweetDataset:
             'targets_start': torch.tensor(targets_start, dtype=torch.long),
             'targets_end': torch.tensor(targets_end, dtype=torch.long),
             'padding_len': torch.tensor(padding_len, dtype=torch.long),
-            'tweet_tokens': " ".join*tokenized_tweet_tokens,
+            'tweet_tokens': " ".join(tokenized_tweet_tokens),
             'original_tweet': self.tweet[item],
             'sentiment': torch.tensor(sentiment, dtype=torch.long),
             'original_sentiment': self.sentiment[item],
@@ -96,4 +96,4 @@ if __name__ == "__main__":
         sentiment=df.sentiment.values,
         selected_text=df.selected_text.values
     )
-
+    print(dset[0])
