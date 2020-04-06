@@ -74,7 +74,11 @@ def run():
     best_jaccard = 0
     for epoch in range(config.EPOCHS):
         engine.train_fn(train_dataloader, model, optimizer, device, scheduler)
-        # jaccard = engine.eval_fn(valid_dataloader, model, device)
+        jaccard = engine.eval_fn(valid_dataloader, model, device)
+        print(f"Jaccard Score: {jaccard}")
+        if jaccard > best_jaccard:
+            torch.save(model.state_dict(), config.BEST_MODEL_PATH)
+            best_jaccard = jaccard
 
 
 if __name__ == '__main__':
