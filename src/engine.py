@@ -17,7 +17,7 @@ def train_fn(data_loader, model, optimizer, device, scheduler):
     model.train()
     losses = utils.AverageMeter()
     tk0 = tqdm(data_loader, total=data_loader.__len__())
-    for bi, d in enumerate(tk0)
+    for bi, d in enumerate(tk0):
         ids = d['ids']
         token_type_ids = d['token_type_ids']
         mask = d['mask']
