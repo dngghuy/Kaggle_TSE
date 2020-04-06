@@ -138,7 +138,7 @@ def eval_fn(data_loader, model, device):
             final_output = final_output.strip()
             if sentiment == 'neutral' or (original_tweet.split()).__len__() < 4:
                 final_output = original_tweet
-            jac = utils.jaccard(target_string.strip, final_output.strip())
+            jac = utils.jaccard(target_string.strip(), final_output.strip())
             jaccards.append(jac)
         mean_jac = np.mean(jaccards)
 
