@@ -6,11 +6,12 @@ from tqdm import tqdm
 import numpy as np
 
 
-def loss_func(o1, o2, t1, t2):
+def loss_func(o1, o2, o3, t1, t2, t3):
     l1 = nn.BCEWithLogitsLoss()(o1, t1)
     l2 = nn.BCEWithLogitsLoss()(o2, t2)
+    l3 = nn.CrossEntropyLoss()(o3, t3)
 
-    return l1 + l2
+    return l1 + l2 + l3
 
 
 # TODO: Using Pytorch lightning
@@ -24,6 +25,7 @@ def train_fn(data_loader, model, optimizer, device, scheduler):
         mask = d['mask']
         targets_start = d['targets_start']
         targets_end = d['targets_end']
+        sentiment = d['sentiment']
 
         ids = ids.to(device, dtype=torch.long)
         token_type_ids = token_type_ids.to(device, dtype=torch.long)
@@ -32,13 +34,13 @@ def train_fn(data_loader, model, optimizer, device, scheduler):
         targets_end = targets_end.to(device, dtype=torch.float)
 
         optimizer.zero_grad()
-        outputs1, outputs2 = model(
+        outputs1, outputs2, outputs3 = model(
             ids=ids,
             mask=mask,
             token_type_ids=token_type_ids
         )
 
-        loss = loss_func(outputs1, outputs2, targets_start, targets_end)
+        loss = loss_func(outputs1, outputs2, targets_start, targets_end, sentiment)
         loss.backward()
         optimizer.step()
         scheduler.step()
@@ -67,12 +69,11 @@ def eval_fn(data_loader, model, device):
             orig_selected = d["original_selected"]
             orig_tweet = d["original_tweet"]
 
-
             ids = ids.to(device, dtype=torch.long)
             token_type_ids = token_type_ids.to(device, dtype=torch.long)
             mask = mask.to(device, dtype=torch.long)
 
-            outputs1, outputs2 = model(
+            outputs1, outputs2, sent = model(
                 ids=ids,
                 mask=mask,
                 token_type_ids=token_type_ids

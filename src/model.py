@@ -10,6 +10,8 @@ class BERTBaseUncased(nn.Module):
         self.bert_drop = nn.Dropout(0.3)
         # Header ~ customize later
         self.l0 = nn.Linear(768, 2)
+        self.l1 = nn.Linear(768, 3)
+
 
     def forward(self, ids, mask, token_type_ids):
         # Currently not using sentiment
@@ -19,9 +21,10 @@ class BERTBaseUncased(nn.Module):
             token_type_ids=token_type_ids
         )
         logits = self.l0(sequence_output)
+        sentiment_pred = self.l1(sequence_output)
         # (batch size, num tokens, 2)
         start_logits, end_logits = logits.split(1, dim=-1)
         start_logits = start_logits.squeeze(-1)
         end_logits = end_logits.squeeze(-1)
 
-        return start_logits, end_logits
+        return start_logits, end_logits, sentiment_pred
