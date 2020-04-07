@@ -32,7 +32,7 @@ def train_fn(data_loader, model, optimizer, device, scheduler):
         mask = mask.to(device, dtype=torch.long)
         targets_start = targets_start.to(device, dtype=torch.float)
         targets_end = targets_end.to(device, dtype=torch.float)
-        sentiment = sentiment.to(device, dtype=torch.float)
+        sentiment = sentiment.to(device, dtype=torch.long)
 
         optimizer.zero_grad()
         outputs1, outputs2, outputs3 = model(
