@@ -40,7 +40,7 @@ def train_fn(data_loader, model, optimizer, device, scheduler):
             token_type_ids=token_type_ids
         )
 
-        loss = loss_func(outputs1, outputs2, targets_start, targets_end, sentiment)
+        loss = loss_func(outputs1, outputs2, outputs3, targets_start, targets_end, sentiment)
         loss.backward()
         optimizer.step()
         scheduler.step()
