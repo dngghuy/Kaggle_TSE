@@ -5,17 +5,21 @@ import pandas as pd
 
 
 class TweetDataset:
-    def __init__(self, tweet, sentiment, selected_text):
+    def __init__(self, tweet, sentiment, selected_text, transform):
+        """
+        """
         self.tweet = tweet
         self.sentiment = sentiment
         self.selected_text = selected_text
         self.max_len = config.MAX_LEN
         self.tokenizer = config.TOKENIZER
+        self.transform = transform
 
     def __len__(self):
         return self.tweet.__len__()
 
     def __getitem__(self, item):
+        # Preprocess here first
         tweet = " ".join(str(self.tweet[item]).split())
         selected_text = " ".join(str(self.selected_text[item]).split())
 
@@ -35,6 +39,9 @@ class TweetDataset:
             for j in range(idx0, idx1 + 1):
                 if tweet[j] != " ":
                     char_targets[j] = 1
+
+        if self.transform:
+            tweet = self.transform(tweet)
 
         tokenized_tweet = self.tokenizer.encode(tweet)
         tokenized_tweet_tokens = tokenized_tweet.tokens
