@@ -60,7 +60,9 @@ def eval_fn(data_loader, model, device):
     fin_orig_selected = []
 
     with torch.no_grad():
-        for bi, d in tqdm(enumerate(data_loader), total=data_loader.__len__()):
+        losses = utils.AverageMeter()
+        tk0 = tqdm(data_loader, total=data_loader.__len__())
+        for bi, d in enumerate(tk0):
             ids = d['ids']
             token_type_ids = d['token_type_ids']
             mask = d['mask']
@@ -84,8 +86,8 @@ def eval_fn(data_loader, model, device):
                 token_type_ids=token_type_ids
             )
             loss = loss_func(outputs1, outputs2, targets_start, targets_end)
-            wandb.log({'valid_loss': loss})
-
+            losses.update(loss.item(), ids.size(0))
+            tk0.set_postfix(loss=losses.avg)
             fin_output_start.append(torch.sigmoid(outputs1).cpu().detach().numpy())
             fin_output_end.append(torch.sigmoid(outputs2).cpu().detach().numpy())
             fin_padding_len.extend(padding_len.cpu().detach().numpy().tolist())
@@ -93,7 +95,7 @@ def eval_fn(data_loader, model, device):
             fin_orig_selected.extend(orig_selected)
             fin_orig_sentiment.extend(ori_sentiment)
             fin_orig_tweet.extend(orig_tweet)
-
+        wandb.log({'valid_loss': losses.avg})
         fin_output_start = np.vstack(fin_output_start)
         fin_output_end = np.vstack(fin_output_end)
 
@@ -149,5 +151,6 @@ def eval_fn(data_loader, model, device):
             jac = utils.jaccard(target_string.strip(), final_output.strip())
             jaccards.append(jac)
         mean_jac = np.mean(jaccards)
+        wandb.log({'jaccard': mean_jac})
 
         return mean_jac
