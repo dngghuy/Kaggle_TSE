@@ -18,7 +18,7 @@ def loss_func(o1, o2, t1, t2):
 
 # TODO: Using Pytorch lightning
 def train_fn(data_loader, model, optimizer, device, scheduler):
-    wandb.watch(model, watch='all')
+    wandb.watch(model, log='all')
     model.train()
     losses = utils.AverageMeter()
     tk0 = tqdm(data_loader, total=data_loader.__len__())
