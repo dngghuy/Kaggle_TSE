@@ -10,7 +10,9 @@ from sklearn import model_selection
 from transformers import AdamW
 from transformers import get_linear_schedule_with_warmup
 
-def run():
+
+
+def prep_dataset():
     dfx = pd.read_csv(config.TRAIN_FILE).dropna().reset_index(drop=True)
     df_train, df_valid = model_selection.train_test_split(
         dfx,
@@ -46,6 +48,11 @@ def run():
         num_workers=1
     )
 
+    return train_dataloader, valid_dataloader
+
+def run():
+    train_dataloader, valid_dataloader = prep_dataset()
+
     device = torch.device('cuda')
     model = BERTBaseUncased()
     model.to(device)
@@ -61,7 +68,7 @@ def run():
         },
     ]
 
-    num_train_steps = int(df_train.__len__() / config.TRAIN_BATCH_SIZE * config.EPOCHS)
+    num_train_steps = int(train_dataloader.__len__() / config.TRAIN_BATCH_SIZE * config.EPOCHS)
     optimizer = AdamW(optimizer_parameters, lr=3e-5)
     scheduler = get_linear_schedule_with_warmup(
         optimizer,
@@ -70,6 +77,7 @@ def run():
     )
 
     model = nn.DataParallel(model)
+
 
     best_jaccard = 0
     for epoch in range(config.EPOCHS):

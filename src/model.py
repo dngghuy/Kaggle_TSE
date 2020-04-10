@@ -20,10 +20,9 @@ class BERTBaseUncased(nn.Module):
             token_type_ids=token_type_ids
         )
         logits = self.l0(sequence_output)
-        sentiment_pred = self.l1(sequence_output)
         # (batch size, num tokens, 2)
         start_logits, end_logits = logits.split(1, dim=-1)
         start_logits = start_logits.squeeze(-1)
         end_logits = end_logits.squeeze(-1)
 
-        return start_logits, end_logits, sentiment_pred
+        return start_logits, end_logits
