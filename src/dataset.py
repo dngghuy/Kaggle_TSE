@@ -4,8 +4,22 @@ import numpy as np
 import pandas as pd
 
 
+def find_indx(tweet, selected_text):
+    len_selected_text = selected_text.__len__()
+    idx0 = -1
+    idx1 = -1
+    selected_start = [i for i, e in enumerate(tweet) if e == selected_text[0]]
+    for ind in selected_start:
+        if tweet[ind: ind + len_selected_text] == selected_text:
+            idx0 = ind
+            idx1 = ind + len_selected_text - 1
+            break
+
+    return idx0, idx1
+
+
 class TweetDataset:
-    def __init__(self, tweet, sentiment, selected_text, transform):
+    def __init__(self, tweet, sentiment, selected_text):
         """
         """
         self.tweet = tweet
@@ -13,7 +27,6 @@ class TweetDataset:
         self.selected_text = selected_text
         self.max_len = config.MAX_LEN
         self.tokenizer = config.TOKENIZER
-        self.transform = transform
 
     def __len__(self):
         return self.tweet.__len__()
@@ -23,15 +36,7 @@ class TweetDataset:
         tweet = " ".join(str(self.tweet[item]).split())
         selected_text = " ".join(str(self.selected_text[item]).split())
 
-        len_selected_text = selected_text.__len__()
-        idx0 = -1
-        idx1 = -1
-        selected_start = [i for i, e in enumerate(tweet) if e == selected_text[0]]
-        for ind in selected_start:
-            if tweet[ind: ind + len_selected_text] == selected_text:
-                idx0 = ind
-                idx1 = ind + len_selected_text - 1
-                break
+        idx0, idx1 = find_indx(tweet, selected_text)
 
         # Find selected words as character targets
         char_targets = [0] * tweet.__len__()
@@ -39,9 +44,6 @@ class TweetDataset:
             for j in range(idx0, idx1 + 1):
                 if tweet[j] != " ":
                     char_targets[j] = 1
-
-        if self.transform:
-            tweet = self.transform(tweet)
 
         tokenized_tweet = self.tokenizer.encode(tweet)
         tokenized_tweet_tokens = tokenized_tweet.tokens
@@ -54,7 +56,20 @@ class TweetDataset:
             if sum(char_targets[offset1:offset2]) > 0:
                 targets[j] = 1
 
-        targets = [0] + targets + [0] # Add [CLS], [SEP]
+        sentiment_id = {
+            'positive': 3893, # from tokenizer
+            'negative': 4997, # from tokenizer
+            'neutral': 8699   # from tokenizer
+        }
+        # Modify tokenized tweet tokens, tokenized tweet ids, tokenized tweet offset
+        token_type_ids = [0, 0, 0] + [1] * tokenized_tweet_ids.__len__()
+        tokenized_tweet_ids = [101] + [sentiment_id[self.sentiment[item]]] + [102] + tokenized_tweet_ids
+        tokenized_tweet_offsets = [(0, 0)] * 3 + tokenized_tweet_offsets + [(0, 0)]
+        tokenized_tweet_tokens = ['[CLS]', str(self.sentiment[item]), '[SEP]'] + tokenized_tweet_tokens
+
+        # Attention mask
+        mask = [1] * token_type_ids.__len__()
+        targets = [0, 0, 0] + [0] + targets + [0] # Add [CLS, sentiment, SEP], [CLS], [SEP]
         targets_start = [0] * targets.__len__()
         targets_end = [0] * targets.__len__()
 
@@ -63,9 +78,7 @@ class TweetDataset:
             targets_start[non_zero_vars[0]] = 1
             targets_end[non_zero_vars[-1]] = 1
 
-        # Attention mask
-        mask = [1] * tokenized_tweet_ids.__len__()
-        token_type_ids = [0] * tokenized_tweet_ids.__len__()
+
 
         padding_len = self.max_len - tokenized_tweet_ids.__len__()
         ids = tokenized_tweet_ids + [0] * padding_len
@@ -74,6 +87,7 @@ class TweetDataset:
         targets = targets + [0] * padding_len
         targets_start = targets_start + [0] * padding_len
         targets_end = targets_end + [0] * padding_len
+        offsets = tokenized_tweet_offsets + [(0, 0)] * padding_len
 
         sentiment = [1, 0, 0] # neutral
         if self.sentiment[item] == 'positive':
@@ -90,8 +104,10 @@ class TweetDataset:
             'targets_end': torch.tensor(targets_end, dtype=torch.long),
             'padding_len': torch.tensor(padding_len, dtype=torch.long),
             'tweet_tokens': " ".join(tokenized_tweet_tokens),
+            'offsets': offsets,
             'original_tweet': self.tweet[item],
             'sentiment': torch.tensor(sentiment, dtype=torch.long),
+            'sentiment_id': sentiment_id,
             'original_sentiment': self.sentiment[item],
             'original_selected': self.selected_text[item]
         }

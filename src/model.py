@@ -10,7 +10,6 @@ class BERTBaseUncased(nn.Module):
         self.bert_drop = nn.Dropout(0.3)
         # Header ~ customize later
         self.l0 = nn.Linear(768, 2)
-        self.l1 = nn.Linear(768, 3)
 
 
     def forward(self, ids, mask, token_type_ids):
