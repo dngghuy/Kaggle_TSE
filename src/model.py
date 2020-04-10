@@ -19,6 +19,7 @@ class BERTBaseUncased(nn.Module):
             attention_mask=mask,
             token_type_ids=token_type_ids
         )
+        sequence_output = self.bert_drop(sequence_output)
         logits = self.l0(sequence_output)
         # (batch size, num tokens, 2)
         start_logits, end_logits = logits.split(1, dim=-1)

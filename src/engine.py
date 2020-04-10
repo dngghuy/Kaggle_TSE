@@ -60,7 +60,7 @@ def eval_fn(data_loader, model, device):
     fin_orig_selected = []
 
     with torch.no_grad():
-        losses = utils.AverageMeter()
+        val_losses = utils.AverageMeter()
         tk0 = tqdm(data_loader, total=data_loader.__len__())
         for bi, d in enumerate(tk0):
             ids = d['ids']
@@ -86,8 +86,8 @@ def eval_fn(data_loader, model, device):
                 token_type_ids=token_type_ids
             )
             loss = loss_func(outputs1, outputs2, targets_start, targets_end)
-            losses.update(loss.item(), ids.size(0))
-            tk0.set_postfix(loss=losses.avg)
+            val_losses.update(loss.item(), ids.size(0))
+            tk0.set_postfix(loss=val_losses.avg)
             fin_output_start.append(torch.sigmoid(outputs1).cpu().detach().numpy())
             fin_output_end.append(torch.sigmoid(outputs2).cpu().detach().numpy())
             fin_padding_len.extend(padding_len.cpu().detach().numpy().tolist())
@@ -95,7 +95,7 @@ def eval_fn(data_loader, model, device):
             fin_orig_selected.extend(orig_selected)
             fin_orig_sentiment.extend(ori_sentiment)
             fin_orig_tweet.extend(orig_tweet)
-        wandb.log({'valid_loss': losses.avg})
+        wandb.log({'valid_loss': val_losses.avg})
         fin_output_start = np.vstack(fin_output_start)
         fin_output_end = np.vstack(fin_output_end)
 
