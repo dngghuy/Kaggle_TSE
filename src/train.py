@@ -9,7 +9,8 @@ from model import BERTBaseUncased
 from sklearn import model_selection
 from transformers import AdamW
 from transformers import get_linear_schedule_with_warmup
-
+import wandb
+wandb.init("Tweet_Sentiment_Extraction")
 
 
 def prep_dataset():
@@ -50,13 +51,7 @@ def prep_dataset():
 
     return train_dataloader, valid_dataloader
 
-def run():
-    train_dataloader, valid_dataloader = prep_dataset()
-
-    device = torch.device('cuda')
-    model = BERTBaseUncased()
-    model.to(device)
-
+def run(model, train_dataloader, valid_dataloader):
     param_optimizer = list(model.named_parameters())
     no_decay = ['bias', 'LayerNorm.bias', "LayerNorm.weight"]
     optimizer_parameters = [
@@ -90,7 +85,13 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+
+    train_dataloader, valid_dataloader = prep_dataset()
+    device = torch.device('cuda')
+    model = BERTBaseUncased()
+    wandb.watch(model, log='all')
+    model.to(device)
+    run(model, train_dataloader, valid_dataloader)
 
 
 
