@@ -48,7 +48,7 @@ def train_fn(data_loader, model, optimizer, device, scheduler):
         scheduler.step()
         losses.update(loss.item(), ids.size(0))
         tk0.set_postfix(loss=losses.avg)
-        wandb.log({"train_loss": loss})
+    wandb.log({"train_loss": losses.avg})
 
 
 def eval_fn(data_loader, model, device):
