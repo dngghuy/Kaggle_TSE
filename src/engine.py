@@ -77,6 +77,8 @@ def eval_fn(data_loader, model, device):
             ids = ids.to(device, dtype=torch.long)
             token_type_ids = token_type_ids.to(device, dtype=torch.long)
             mask = mask.to(device, dtype=torch.long)
+            targets_start = targets_start.to(device, dtype=torch.float)
+            targets_end = targets_end.to(device, dtype=torch.float)
 
             outputs1, outputs2 = model(
                 ids=ids,
