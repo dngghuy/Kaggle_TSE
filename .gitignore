@@ -142,3 +142,4 @@ Visualize/
 
 # Pycharm
 .idea/
+src/wandb/
