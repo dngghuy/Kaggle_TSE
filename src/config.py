@@ -11,7 +11,8 @@ TRAIN_BATCH_SIZE = 64
 VALID_BATCH_SIZE = 32
 EPOCHS = 10
 MODEL_PATH = pathlib.Path(__file__).parent.parent / 'models'
-TRAIN_FILE = DATA_PATH / 'train.csv'
+TRAIN_FILE = DATA_PATH / 'train_fold4.csv'
+VALID_FILE = DATA_PATH / 'valid_fold4.csv'
 
 TOKENIZER_BERT = tokenizers.BertWordPieceTokenizer(
     f"{str(BERT_PATH / 'vocab.txt')}",

@@ -15,13 +15,15 @@ def weights_init(m):
 
 
 class TweetModelElectraHeader1(transformers.BertPreTrainedModel):
-    def __init__(self, conf):
+    def __init__(self, conf, init_type):
         super(TweetModelElectraHeader1, self).__init__(conf)
+        init_func = init_dict.get(init_type, None)
         self.electra = transformers.ElectraModel.from_pretrained(config.ELECTRA_PATH, config=conf)
         self.header = nn.Sequential(
             nn.Linear(768 * 2, 2)
         )
-        self.header.apply(weights_init)
+        if init_func is not None:
+            self.header.apply(init_func)
 
     def forward(self, ids, mask, token_type_ids):
         _, out = self.electra(
@@ -42,8 +44,9 @@ class TweetModelElectraHeader1(transformers.BertPreTrainedModel):
 
 
 class TweetModelElectraHeader2(transformers.BertPreTrainedModel):
-    def __init__(self, conf):
+    def __init__(self, conf, init_type):
         super(TweetModelElectraHeader2, self).__init__(conf)
+        init_func = init_dict.get(init_type, None)
         self.electra = transformers.ElectraModel.from_pretrained(config.ELECTRA_PATH, config=conf)
         self.header = nn.Sequential(
             nn.Linear(768 * 2, 128),
@@ -51,7 +54,8 @@ class TweetModelElectraHeader2(transformers.BertPreTrainedModel):
             nn.Dropout(0.3),
             nn.Linear(128, 2)
         )
-        self.header.apply(weights_init)
+        if init_func is not None:
+            self.header.apply(init_func)
 
     def forward(self, ids, mask, token_type_ids):
         _, out = self.electra(
@@ -69,3 +73,13 @@ class TweetModelElectraHeader2(transformers.BertPreTrainedModel):
         end_logits = end_logits.squeeze(-1)
 
         return start_logits, end_logits
+
+
+model_dict = {
+    'electra_header1': TweetModelElectraHeader1,
+    'electra_header2': TweetModelElectraHeader2
+}
+
+init_dict = {
+    'he': weights_init,
+}

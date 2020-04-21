@@ -1,5 +1,11 @@
 import numpy as np
+import os
 import torch
+
+
+def check_make_dir(path):
+    if not os.path.isdir(path):
+        os.makedirs(path)
 
 
 def jaccard(str1, str2):
