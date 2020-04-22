@@ -33,7 +33,7 @@ class TweetModelElectraHeader1(transformers.BertPreTrainedModel):
         )
 
         out = torch.cat((out[-1], out[-2]), dim=-1)
-        logits = self.l0(out)
+        logits = self.header(out)
 
         start_logits, end_logits = logits.split(1, dim=-1)
 
@@ -65,7 +65,7 @@ class TweetModelElectraHeader2(transformers.BertPreTrainedModel):
         )
 
         out = torch.cat((out[-1], out[-2]), dim=-1)
-        logits = self.l0(out)
+        logits = self.header(out)
 
         start_logits, end_logits = logits.split(1, dim=-1)
 
