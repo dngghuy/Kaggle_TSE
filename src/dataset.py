@@ -10,7 +10,7 @@ class TweetDataset:
         self.sentiment = sentiment
         self.selected_text = selected_text
         self.max_len = config.MAX_LEN
-        self.tokenizer = config.TOKENIZER_ELCTRA
+        self.tokenizer = config.TOKENIZER_ELECTRA
 
     def __len__(self):
         return self.tweet.__len__()
