@@ -201,7 +201,7 @@ def run_experiments_sgd(experiment_config, stage=1, wandb_name=None, wandb_notes
     init_type = experiment_config.get('init')
     # Default, since I am running on Google Colab
     device = torch.device("cuda")
-    MODELS = config.MODEL / 'SGD' / model_type / init_type
+    MODELS = config.MODEL_PATH / 'SGD' / model_type / init_type
     utils.check_make_dir(MODELS)
 
     train_data_loader, valid_data_loader = prepare_experiment_dataset()
