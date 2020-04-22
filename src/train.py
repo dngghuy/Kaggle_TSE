@@ -180,7 +180,7 @@ def run_experiments_adamw(experiment_config, wandb_name=None, wandb_notes=None):
         engine.train_fn(train_data_loader, experiment_model, optimizer, device, scheduler=scheduler, wandb_notes=wandb_notes)
         jaccard = engine.eval_fn(valid_data_loader, experiment_model, device, wandb_notes=wandb_notes)
         print(f"Jaccard Score = {jaccard}")
-        es(jaccard, model, model_path=f"{str(MODELS)}/AdamW_{model_type}_{init_type}.bin")
+        es(jaccard, experiment_model, model_path=f"{str(MODELS)}/AdamW_{model_type}_{init_type}.bin")
         if es.early_stop:
             print("Early stopping")
             break
@@ -234,7 +234,7 @@ def run_experiments_sgd(experiment_config, stage=1, wandb_name=None, wandb_notes
         engine.train_fn(train_data_loader, experiment_model, optimizer, device, scheduler=scheduler, wandb_notes=wandb_notes)
         jaccard = engine.eval_fn(valid_data_loader, experiment_model, device, wandb_notes=wandb_notes)
         print(f"Jaccard Score = {jaccard}")
-        es(jaccard, model, model_path=f"{str(MODELS)}/SGD_{model_type}_{init_type}.bin")
+        es(jaccard, experiment_model, model_path=f"{str(MODELS)}/SGD_{model_type}_{init_type}.bin")
         if es.early_stop:
             print("Early stopping")
             break
