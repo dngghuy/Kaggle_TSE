@@ -87,7 +87,7 @@ def train_fn(data_loader, model, optimizer, device, scheduler=None, wandb_notes=
         )
 
 
-def eval_fn(data_loader, model, device):
+def eval_fn(data_loader, model, device, wandb_notes=None):
     model.eval()
     losses = utils.AverageMeter()
     jaccards = utils.AverageMeter()
@@ -136,7 +136,19 @@ def eval_fn(data_loader, model, device):
             jaccards.update(np.mean(jaccard_scores), ids.size(0))
             losses.update(loss.item(), ids.size(0))
             tk0.set_postfix(loss=losses.avg, jaccard=jaccards.avg)
-    wandb.log({'val_loss': losses.avg})
-    wandb.log({'val_jaccard': jaccards.avg})
+    if wandb_notes is None:
+        wandb.log(
+            {
+                'val_loss': float(losses.avg),
+                'val_jaccards': float(jaccards.avg)
+            }
+        )
+    else:
+        wandb.log(
+            {
+                f'{wandb_notes}_val_loss': float(losses.avg),
+                f'{wandb_notes}_val_jaccards': float(jaccards.avg)
+            }
+        )
     print(f"Jaccard = {jaccards.avg}")
     return jaccards.avg
