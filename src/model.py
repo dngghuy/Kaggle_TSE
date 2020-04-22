@@ -8,7 +8,7 @@ import math
 def weights_init(m):
     classname = m.__class__.__name__
     if classname == 'Linear':
-        m_std = 1. / math.sqrt(m.weight.size(1))
+        m_std = math.sqrt(2. / m.weight.size(1))
         torch.nn.init.normal_(m.weight, mean=0, std=m_std)
         if m.bias is not None:
             m.bias.data.fill_(0.)
