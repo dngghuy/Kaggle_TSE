@@ -147,7 +147,7 @@ def run_experiments_adamw(experiment_config, wandb_name=None, wandb_notes=None):
     init_type = experiment_config.get('init')
     # Default, since I am running on Google Colab
     device = torch.device("cuda")
-    MODELS = config.MODEL / 'AdamW' / model_type / init_type
+    MODELS = config.MODEL_PATH / 'AdamW' / model_type / init_type
     utils.check_make_dir(MODELS)
 
     train_data_loader, valid_data_loader = prepare_experiment_dataset()
